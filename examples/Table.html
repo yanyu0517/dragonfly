@@ -13,8 +13,88 @@
 <script type="text/javascript" src="asset/js/config.js"></script>
 <script type="text/javascript">
 require(['ui/Table'], function(Table) {
-    var table = new Table();
-    console.log(table);
+    var data = [
+        {id:1, name: 'erik', sex: 1},
+        {id:2, name: 'tony', sex: 0},
+        {id:3, name: 'frank', sex: 1},
+        {id:4, name: 'meimei', sex: 1},
+        {id:5, name: 'false', sex: 1},
+        {id:6, name: '0', sex: 1}
+    ];
+    //只完成初始化，不负责渲染
+    var table = new Table({
+        datasource: data,
+        sortable: true,
+        columnResizable: true,
+        followHead: true,
+        subrow:true,
+        select:'multi',
+        selectMode: 'line',
+        editable: 1,
+        subrowMutex: 0,
+        contentEncode: 1,
+        zIndex: 1214,
+        noFollowHeadCache: true,//默认为false,如无必要也最好设置为false,效率更高。
+        //selectMode :'line',
+        noDataHtml: '<p style="margin:0;">nothing</p>',
+        fields: [
+            {
+                title: '编号',
+                field: 'id' ,
+                sortable: true,
+                tip :'编号',
+                resizable: true,
+                subEntry: 1,
+                editable: 1,
+                editRules: {
+                    pattern: /\d/g,
+                    min: 1
+                },
+                editContent: function(item){
+                    return item.id;
+                },
+                width: 100,
+                content: function (item) {
+                    return item.id;
+                }
+            },
+            {
+                title: '姓名',
+                field: 'name' ,
+                tip :'姓名',
+                align: 'right',
+                editable: 1,
+                comparer : function( a,b ){
+                    return a.name.localeCompare( b.name );
+                },
+                sortable: true,
+                resizable : true,
+                width: 100,
+                content: function (item) {
+                    return item.name;
+                }
+            },
+            {
+                title: '性别',
+                field: 'sex' ,
+                tip :'性别',
+                comparer : function( a,b ){
+                    return a.sex - b.sex;
+                },
+                sortable: true,
+                resizable : true,
+                width: 200,
+                content: function (item) {
+                    return item.sex ? '男' : '女';
+                }
+            }
+        ]
+    });
+    //手动渲染
+    table.render('container1');
+
+    //相当于设置this.states['hidden'] = false; 同时触发执行hidden:function(){}
+    table.show();
 });
 </script>
 </body>
