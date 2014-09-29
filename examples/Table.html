@@ -23,72 +23,22 @@ require(['ui/Table'], function(Table) {
     ];
     //只完成初始化，不负责渲染
     var table = new Table({
-        datasource: data,
-        sortable: true,
-        columnResizable: true,
-        followHead: true,
-        subrow:true,
-        select:'multi',
-        selectMode: 'line',
-        editable: 1,
-        subrowMutex: 0,
-        contentEncode: 1,
-        zIndex: 1214,
-        noFollowHeadCache: true,//默认为false,如无必要也最好设置为false,效率更高。
-        //selectMode :'line',
-        noDataHtml: '<p style="margin:0;">nothing</p>',
-        fields: [
-            {
-                title: '编号',
-                field: 'id' ,
-                sortable: true,
-                tip :'编号',
-                resizable: true,
-                subEntry: 1,
-                editable: 1,
-                editRules: {
-                    pattern: /\d/g,
-                    min: 1
-                },
-                editContent: function(item){
-                    return item.id;
-                },
-                width: 100,
-                content: function (item) {
-                    return item.id;
-                }
-            },
-            {
-                title: '姓名',
-                field: 'name' ,
-                tip :'姓名',
-                align: 'right',
-                editable: 1,
-                comparer : function( a,b ){
-                    return a.name.localeCompare( b.name );
-                },
-                sortable: true,
-                resizable : true,
-                width: 100,
-                content: function (item) {
-                    return item.name;
-                }
-            },
-            {
-                title: '性别',
-                field: 'sex' ,
-                tip :'性别',
-                comparer : function( a,b ){
-                    return a.sex - b.sex;
-                },
-                sortable: true,
-                resizable : true,
-                width: 200,
-                content: function (item) {
-                    return item.sex ? '男' : '女';
-                }
-            }
-        ]
+        columns: [{
+            label: String, //列头的标题
+            title: String, //列头的title属性
+            width: int, //列宽，单位：px
+            minWidth: int, //最小列宽，单位：px
+            draggle: false, //可拖拽
+            align: 'center', //列头标题的对齐方式
+            sortable: false, //列是否可排序
+            fixed: true, //当拖拽其他列的时候，此列的宽度是否固定
+            field: String, //数据字段标示
+            render: [fun1:function(){},fun2:function(){}],
+        }],
+        checkbox:true,
+        data: [],
+        noDataHtml: '没有数据',
+        fixedHead: false
     });
     //手动渲染
     table.render('container1');

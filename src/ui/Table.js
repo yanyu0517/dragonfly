@@ -19,30 +19,12 @@ define(function(require) {
         '</tbody>',
         '</table>'
     ].join('');
-
     var defaultCfg = {
-        marker : true,
-        refresh : false,
-        switchTags : false,
-        hidden:false,
-        beforeRender:function(){},
-        afterRender:function(){},
+        columns: [],
+        checkbox:false,
+        data: [],
         noDataHtml: '没有数据',
-        noFollowHeadCache: false,
-        followHead: false,
-        sortable: false,
-        encode: false,
-        columnResizable: false,
-        rowWidthOffset: -1,
-        select: '',
-        selectMode: 'box',
-        breakLine: false,
-        hasTip: false,
-        tipWidth: 18,
-        sortWidth: 9,
-        fontSize: 13,
-        colPadding: 8,
-        zIndex: 0
+        fixedHead: false
     };
 
     /**
@@ -311,6 +293,34 @@ define(function(require) {
         },
 
         /**
+         * 初始化控件状态
+         *
+         * @param {Object} [options] 初始化参数
+         * @protected
+         */
+        initStates: function(options) {
+            this.states = {};
+            if (options && typeof options.disabled !== 'undefined') {
+                this.states.disabled = options.disabled;
+            }
+            if (options && typeof options.hidden !== 'undefined') {
+                this.states.hidden = options.hidden;
+            }
+            this.states.columns = [];
+            for(var i = 0; i < options.columns.length; i++){
+                var column = options.columns[i];
+                this.states.columns.push({
+                    width: column.width, //列宽，单位：px
+                    minWidth: column.minWidth, //最小列宽，单位：px
+                    field: column.field //数据字段标示
+                });
+            }];
+            this.states.selectedRow = field: options.selectedRow;
+            this.states.data        = field: options.data;
+            this.states.fixedHead   = field: options.fixedHead;
+        },
+
+        /**
          * 初始化参数
          *
          * @param {Object} [options] 初始化参数
@@ -329,14 +339,16 @@ define(function(require) {
          */
         initPainters: function() {
             this.painters = {
-                hidden: function(hidden) {
-                    this.main.style.display = hidden ? 'none' : '';
-                },
-                disabled: function(disabled) {
-                    this.main.disabled = disabled;
-                }
+                columns: renderColumns
             };
         },
+
+        renderColumns: function(columns){
+            this.header = dom.create('div');
+ 
+ 
+            this.main.append(this.header)
+        }
 
 
         //render内部函数 appendMain->initElements->initEvents->repaint->initExtensions
@@ -452,3 +464,4 @@ define(function(require) {
 
     return Table;
 });
+     
