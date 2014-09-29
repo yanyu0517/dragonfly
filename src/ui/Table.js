@@ -56,6 +56,12 @@ define(function(require) {
     }
 
 
+    //----------------------------all settings ------------------------------
+    //重置Table主元素的ZIndex
+    function resetMainZIndex(table){
+        table.main.style.zIndex = table.zIndex || '';
+    }
+
     //------------------------------ head -------------------------------
     //获取表格头html
     function getHeadHtml(table){
@@ -130,20 +136,75 @@ define(function(require) {
     }
     //表格行鼠标点击事件
     function rowClickHandler(element, e){
-
+        selectMulti(table, index, !input.checked);
     }
     //行的checkbox点击处理
     function rowCheckboxClick(element, e){
-
+        var index = getAttr(element, 'index');
+        selectMulti(this, index);
+        resetMutilSelectedStatus(this);
     }
     //全选/全不选
     function toggleSelectAll(arg){
 
     }
+    
+    function selectAll(table, checked) {
+        selectMulti(table, -1, checked);
+        resetMutilSelectedStatus(table);
+    }
+    //选择
+    function selectMulti(table, index, isSelected) {
+        var selectedClass = 'row-selected';
+        if (index >= 0) {
+            //选择一个
+        } else if(hasValue(isSelected)){
+            //全选
+            var inputs = findSelectBox(table, 'checkbox');
+            for (var i = 0, len = inputs.length; i < len; i++) {
+                var input = inputs[i];
+                input.checked = isSelected;
+                var inputIndex = getAttr(input, 'index');
+                var row = getRow(table, inputIndex);
+                if (isSelected) {
+                    helper.addPartClasses(table, selectedClass, row);
+                } else {
+                    helper.removePartClasses(table, selectedClass, row);
+                }
+            }
+        }
+    }
+    //重置多选的选中状态，包括是否全选和selectedIndex
+    function resetMutilSelectedStatus(table) {
+        var selectAll = getHeadCheckbox(table);
+        var inputs = findSelectBox(table, 'checkbox');
+        var allChecked = true;
+        var selected = [];
+        var cbIdPrefix = getId(table, 'multi-select');
+
+        for (var i = 0, len = inputs.length; i < len; i++) {
+            var input = inputs[i];
+            if (input.id.indexOf(cbIdPrefix) >= 0) {
+                var inputIndex = getAttr(input, 'index');
+                if (!input.checked) {
+                    allChecked = false;
+                }
+                else {
+                    selected.push(inputIndex);
+                }
+            }
+        }
+
+        setSelectedIndex(table, selected);
+        table.fire('select', {selectedIndex: selected});
+
+        selectAll.checked = allChecked;
+    }
     //获取第一列的多选框
     function getMultiSelectField(table){
 
     }
+
 
 
     //------------------------------ foot -------------------------------
@@ -315,7 +376,76 @@ define(function(require) {
          */
         destroyEvents: function() {
             this.removeDOMEvent(this.main);
-        }
+        },
+
+        //----------------------------- 对外提供的方法 --------------------
+        //初始化DOM结构
+        initStructure: function() {
+            this.realWidth = getWidth(this);
+            if (this.realWidth) {
+               this.main.style.width = this.realWidth + 'px';
+            }
+
+            resetMainZIndex(this);
+
+            initBaseBuilderList(this);
+            initResizeHandler(this);
+            initMainEventhandler(this);
+        },
+        getId: function(id) {
+            return getId(this, id);
+        },
+        getBodyCellId: function(rowIndex, fieldIndex){
+            return getBodyCellId(this, rowIndex, fieldIndex);
+        },
+        getRow: function(index) {
+            return getRow(this, index);
+        },
+        //获取表格相关ClassName
+        getClass: function(name) {
+            return getClass(this, name);
+        },
+        //设置单元格的文字 isEncodeHtml是布尔类型
+        setCellText: function (text, rowIndex, columnIndex, isEncodeHtml) {
+
+        },
+        //添加table主元素上事件委托  handlers 处理函数数组或单个函数
+        addHandlers: function(eventType, handlers) {
+            if (!handlers.length) {
+                handlers = [handlers];
+            }
+
+            return addHandlers(this, this.main, eventType, handlers);
+        },
+
+        //删除table主元素上事件委托  handlers 处理函数数组或单个函数
+        removeHandlers: function(eventType, handlers) {
+            if (!handlers.length) {
+                handlers = [handlers];
+            }
+
+            removeHandlers(this, this.main, eventType, handlers);
+        },
+        //设置数据源，并强制更新
+        setDatasource: function(datasource){
+            this.repaint();
+        },
+        //重新绘制某行
+        updateRowAt: function(index, data) {
+
+        },
+        //获取选中项数据
+        getSelectedItems: function() {
+
+        },
+        //设置行选中
+        setRowSelected: function(index, isSelected) {
+
+        },
+        //设置所有行选中
+        setAllRowSelected: function(isSelected) {
+            this.setRowSelected(-1, isSelected);
+        },
     };
 
     base.inherit(Table, Widget);
