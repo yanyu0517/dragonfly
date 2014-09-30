@@ -23,6 +23,10 @@ require(['ui/Table'], function(Table) {
     ];
     //只完成初始化，不负责渲染
     var table = new Table({
+        checkbox:true,
+        data: data,
+        noDataHtml: '没有数据',
+        fixedHead: false,
         columns: [{
             label: 'ID', //列头的标题
             field: 'id', //数据字段标示
@@ -69,11 +73,7 @@ require(['ui/Table'], function(Table) {
                     return data == 0 ? '女' : '男';
                 }
             ]
-        }],
-        checkbox:true,
-        data: data,
-        noDataHtml: '没有数据',
-        fixedHead: false
+        }]
     });
     //手动渲染
     table.render('container1');

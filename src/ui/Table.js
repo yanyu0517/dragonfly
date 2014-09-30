@@ -277,6 +277,10 @@ define(function(require) {
             this.header = document.createElement('div');
             this.header.className = 'ui-table-head';
             var html = '<table border="0" cellspacing="0" cellpadding="0" ><tr class="tr_style">';
+            //是否显示checkbox
+            if(this.options.checkbox){
+                html += '<th><input type="checkbox" class="checkbox-all" /></th>';
+            }
             for (var i = 0; i < columns.length; i++) {
                 //宽度
                 var width = columns[i].width ? columns[i].width : (columns[i].minWidth ? columns[i].minWidth : '');
@@ -288,7 +292,7 @@ define(function(require) {
                 var tips = columns[i].tips ? '<i class="ui-table-tips" ></i>' : '';
                 //排序
                 var sortable = columns[i].sortable ? '<i class="ui-table-sortable" ></i>' : '';
-                //
+                
                 html += '<th width='+width+align+title+'>'+tips+columns[i].label+sortable+'</th>';
             };
             html += '</tr></table>';
@@ -312,6 +316,10 @@ define(function(require) {
                 for (var i = 0; i < data.length; i++) {
                     html += '<div style="width:'+rowTotalWidth+'" class="ui-table-row"><table border="0" cellspacing="0" cellpadding="0" ><tr>';
                     var row = data[i];
+                    //是否显示checkbox
+                    if(this.options.checkbox){
+                        html += '<td rowspan="2"><input curr_id=' + (row.id ? row.id : 0) + ' type="checkbox" /></td>';
+                    }
                     for (var cellKey in row) {
                         var cellAttr = this.getCellAttrByField(cellKey);
                         var shadowRow = '';
@@ -322,7 +330,7 @@ define(function(require) {
                             if(_.isFunction(cellAttr.render)){
                                 html+='<td rowspan="2" '+cellAttr.width+cellAttr.align+'>'+cellAttr.render.call(this, row[cellKey], row)+'</td>';
                             }else{
-                                html+='<td rowspan="2" '+cellAttr.width+cellAttr.align+'>'+row[cellKey]+'</td>';
+                                html+='<td rowspan="2" title='+row[cellKey]+' '+cellAttr.width+cellAttr.align+'>'+row[cellKey]+'</td>';
                             }
                         }
                     };
@@ -350,6 +358,7 @@ define(function(require) {
             };
             return attr;
         },
+        //设置body数据
 
 
         //render内部函数 appendMain->initElements->initEvents->repaint->initExtensions
@@ -391,36 +400,7 @@ define(function(require) {
         },
 
         //----------------------------- 对外提供的方法 --------------------
-        //初始化DOM结构
-        initStructure: function() {
-            this.realWidth = getWidth(this);
-            if (this.realWidth) {
-               this.main.style.width = this.realWidth + 'px';
-            }
-
-            resetMainZIndex(this);
-
-            initBaseBuilderList(this);
-            initResizeHandler(this);
-            initMainEventhandler(this);
-        },
-        getId: function(id) {
-            return getId(this, id);
-        },
-        getBodyCellId: function(rowIndex, fieldIndex){
-            return getBodyCellId(this, rowIndex, fieldIndex);
-        },
-        getRow: function(index) {
-            return getRow(this, index);
-        },
-        //获取表格相关ClassName
-        getClass: function(name) {
-            return getClass(this, name);
-        },
-        //设置单元格的文字 isEncodeHtml是布尔类型
-        setCellText: function (text, rowIndex, columnIndex, isEncodeHtml) {
-
-        },
+        
         //添加table主元素上事件委托  handlers 处理函数数组或单个函数
         addHandlers: function(eventType, handlers) {
             if (!handlers.length) {
