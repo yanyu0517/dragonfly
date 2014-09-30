@@ -42,7 +42,7 @@ define(function(require) {
      *     @example
      *     var html = '<table width="{width}" {attrs} cellspacing="1" class="{className}" style="{style}"></table>';
      *     var data = {width: "300px", className: "class"};
-     *     util.sub(html, data);//"<table width="300px" cellspacing="1" class="class" style=""></table>"
+     *     util.sub(html, data);//"<table width="300px"  cellspacing="1" class="class" style=""></table>"
      */
     util.sub = function(s, o) {
         var subRegex = /\{\s*([^|}]+?)\s*(?:\|([^}]*))?\s*\}/g;
