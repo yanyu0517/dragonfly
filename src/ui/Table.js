@@ -19,7 +19,9 @@ define(function(require) {
         '</tbody>',
         '</table>'
     ].join('');
+
     var defaultCfg = {
+        hidden:false,
         columns: [],
         checkbox:false,
         data: [],
@@ -45,14 +47,6 @@ define(function(require) {
     }
 
     //------------------------------ head -------------------------------
-    //获取表格头html
-    function getHeadHtml(table){
-
-    }
-    //渲染表格头
-    function renderHead(table){
-        this.getHeadHtml(table);
-    }
     //表格头事件 鼠标移入单元格
     function titleOverHandler(element, e){
 
@@ -96,14 +90,6 @@ define(function(require) {
     }
 
     //------------------------------ body -------------------------------
-    //获取主题html
-    function getBodyHtml(table){
-
-    }
-    //渲染主体
-    function renderBody(table){
-
-    }
     //获取表格行的html
     function getRowHtml(table, data, index, builderList){
 
@@ -215,65 +201,6 @@ define(function(require) {
     }
     //初始化main元素事件处理函数
     function initMainEventhandler(table){
-        addHandlers(
-            table,
-            table.main,
-            'mouseover',
-            [
-                {
-                    handler: rowOverHandler,
-                    matchFn: rowClass
-                },
-                {
-                    handler: titleOverHandler,
-                    matchFn: titleClass
-                }
-            ]
-        );
-
-        addHandlers(
-            table,
-            table.main,
-            'mouseout',
-            [
-                {
-                    handler: rowOutHandler,
-                    matchFn: rowClass
-                },
-                {
-                    handler: titleOutHandler,
-                    matchFn: titleClass
-                }
-            ]
-        );
-
-        addHandlers(
-            table,
-            table.main,
-            'click',
-            [
-                {
-                    handler: rowClickHandler,
-                    matchFn: rowClass
-                },
-                {
-                    handler: titleClickHandler,
-                    matchFn: titleClass
-                },
-                {
-                    handler: toggleSelectAll,
-                    matchFn: selectAllClass
-                },
-                {
-                    handler: rowCheckboxClick,
-                    matchFn: multiSelectClass
-                },
-                {
-                    handler: selectSingleHandler,
-                    matchFn: singleSelectClass
-                }
-            ]
-        );
     }
 
     Table.prototype = {
@@ -314,10 +241,9 @@ define(function(require) {
                     minWidth: column.minWidth, //最小列宽，单位：px
                     field: column.field //数据字段标示
                 });
-            }];
-            this.states.selectedRow = field: options.selectedRow;
-            this.states.data        = field: options.data;
-            this.states.fixedHead   = field: options.fixedHead;
+            };
+            this.states.selectedRow = options.selectedRow;
+            this.states.data        = options.data;
         },
 
         /**
@@ -339,16 +265,91 @@ define(function(require) {
          */
         initPainters: function() {
             this.painters = {
-                columns: renderColumns
+                hidden: function(hidden) {
+                    this.main.style.display = hidden ? 'none' : '';
+                },
+                columns: this.renderHeader,
+                data:this.renderBody
             };
         },
+        //渲染head
+        renderHeader: function(columns){
+            this.header = document.createElement('div');
+            this.header.className = 'ui-table-head';
+            var html = '<table border="0" cellspacing="0" cellpadding="0" ><tr class="tr_style">';
+            for (var i = 0; i < columns.length; i++) {
+                //宽度
+                var width = columns[i].width ? columns[i].width : (columns[i].minWidth ? columns[i].minWidth : '');
+                //对齐
+                var align = columns[i].align ? ' align='+columns[i].align : '';
+                //title
+                var title = columns[i].title ? ' title='+columns[i].title : '';
+                //tips
+                var tips = columns[i].tips ? '<i class="ui-table-tips" ></i>' : '';
+                //排序
+                var sortable = columns[i].sortable ? '<i class="ui-table-sortable" ></i>' : '';
+                //
+                html += '<th width='+width+align+title+'>'+tips+columns[i].label+sortable+'</th>';
+            };
+            html += '</tr></table>';
+            this.header.innerHTML = html;
+            this.main.appendChild(this.header);//追加到main
+        },
+        //渲染body
+        renderBody:function(data){
+            this.body = document.createElement('div');
+            this.body.className = 'ui-table-body';
+            //获取表头table宽度，用来设置body的宽度
+            var rowTotalWidth = base.get('.ui-table-head table')[0].offsetWidth + 'px';
 
-        renderColumns: function(columns){
-            this.header = dom.create('div');
- 
- 
-            this.main.append(this.header)
-        }
+            //分两种情况：数据空，数据不空
+            if(data.length == 0){
+                //数据空，整个表格被替换，不只是body
+                this.main.innerHTML = this.options.noDataHtml;
+            }else if(data.length > 0){
+                //数据不空
+                var html = '';
+                for (var i = 0; i < data.length; i++) {
+                    html += '<div style="width:'+rowTotalWidth+'" class="ui-table-row"><table border="0" cellspacing="0" cellpadding="0" ><tr>';
+                    var row = data[i];
+                    for (var cellKey in row) {
+                        var cellAttr = this.getCellAttrByField(cellKey);
+                        var shadowRow = '';
+                        if(_.isArray(cellAttr.render)){
+                            html+='<td'+cellAttr.width+cellAttr.align+'>'+cellAttr.render[0].call(this, row[cellKey], row)+'</td>';
+                            shadowRow+='<td'+cellAttr.width+cellAttr.align+'>'+cellAttr.render[1].call(this, row[cellKey], row)+'</td>';
+                        }else{
+                            if(_.isFunction(cellAttr.render)){
+                                html+='<td rowspan="2" '+cellAttr.width+cellAttr.align+'>'+cellAttr.render.call(this, row[cellKey], row)+'</td>';
+                            }else{
+                                html+='<td rowspan="2" '+cellAttr.width+cellAttr.align+'>'+row[cellKey]+'</td>';
+                            }
+                        }
+                    };
+                    html += (_.isArray(cellAttr.render) ? "</tr><tr>"+shadowRow : '')+ '</tr></table></div>';
+                };
+                this.body.innerHTML = html;
+            }
+            this.main.appendChild(this.body);//追加到main
+
+            //设置表格宽度
+            base.get('.ui-table-head')[0].style.width = rowTotalWidth;
+            base.get('.ui-table-body')[0].style.width = rowTotalWidth;
+            base.parent(base.get('.ui-table-body')[0]).style.width = rowTotalWidth;
+        },
+        getCellAttrByField:function(fieldName){
+            var attr = {};
+            for (var i = 0; i < this.options.columns.length; i++) {
+                var column = this.options.columns[i];
+                if(column.field == fieldName){
+                    var width = column.width ? column.width : (column.minWidth ? column.minWidth : '');
+                    attr['width']  = width ? ' width='+width : '';
+                    attr['align']  = column.align ? ' align='+column.align : '';
+                    attr['render'] = column.render ? column.render : '';
+                }
+            };
+            return attr;
+        },
 
 
         //render内部函数 appendMain->initElements->initEvents->repaint->initExtensions
@@ -361,8 +362,7 @@ define(function(require) {
          */
         initElements: function() {
             this.main.style.display = 'none';
-            this.main.innerHTML = _.template(tpl)({
-            });
+            //this.main.innerHTML = _.template(tpl)({});
             //console.log(this.main.innerHTML);
         },
 

@@ -24,19 +24,54 @@ require(['ui/Table'], function(Table) {
     //只完成初始化，不负责渲染
     var table = new Table({
         columns: [{
-            label: String, //列头的标题
-            title: String, //列头的title属性
-            width: int, //列宽，单位：px
-            minWidth: int, //最小列宽，单位：px
+            label: 'ID', //列头的标题
+            field: 'id', //数据字段标示
+            title: 'id', //列头的title属性
+            //width: '200px', //列宽，单位：px
+            minWidth: '100px', //最小列宽，单位：px
+            draggle: false, //可拖拽
+            align: 'left', //列头标题的对齐方式
+            sortable: true, //列是否可排序
+            fixed: true //当拖拽其他列的时候，此列的宽度是否固定
+        },{
+            label: '名称', //列头的标题
+            field: 'name', //数据字段标示
+            title: '名称', //列头的title属性
+            width: '300px', //列宽，单位：px
+            minWidth: '100px', //最小列宽，单位：px
+            draggle: false, //可拖拽
+            align: 'center', //列头标题的对齐方式
+            tips:true,      //列是否需要有气泡提示  [new]
+            sortable: true, //列是否可排序
+            fixed: true, //当拖拽其他列的时候，此列的宽度是否固定
+            render: function(data, row){
+                return html = '<a href="javascript:void(0);">'+(data + 'bizdev')+'</a>';
+            }
+        },{
+            label: '性别', //列头的标题
+            field: 'sex', //数据字段标示
+            title: '性别', //列头的title属性
+            width: '300px', //列宽，单位：px
+            minWidth: '100px', //最小列宽，单位：px
             draggle: false, //可拖拽
             align: 'center', //列头标题的对齐方式
             sortable: false, //列是否可排序
             fixed: true, //当拖拽其他列的时候，此列的宽度是否固定
-            field: String, //数据字段标示
-            render: [fun1:function(){},fun2:function(){}],
+            render: [
+                function(data, row){
+                    var dom;
+                    //var a = dom.create('a');
+                    //dom.addEvent(a, function(){})
+                    //return a;
+                    return html = '<a id="ddd" href="#">'+(data == 0 ? '女' : '男')+'</a>';
+                },
+                function(data, row){
+                    return data == 0 ? '女' : '男';
+                }
+            ]
         }],
         checkbox:true,
-        data: [],
+        data: data,
         noDataHtml: '没有数据',
         fixedHead: false
     });
