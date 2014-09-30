@@ -346,5 +346,21 @@ define(function(require) {
         return offsetParent || window.document.documentElement;;
     }
 
+    /**
+     * 获得最近的定位父节点
+     *
+     * @param {HTMLElement} element 父元素
+     * @param {HTMLElement} child 子元素
+     *
+     *     @example
+     *     dom.append(parent, child);
+     */
+    dom.append = function(element, child) {
+        if(!element || !child){
+            return;
+        }
+        element.appendChild(child);
+    }
+
     return dom;
 });
